@@ -23,3 +23,4 @@ JellybeanJolt: Wanneer je een rij van minstens 3 snoepjes maakt, krijg je 3 extr
 4. Puntentelling en einde spel: 
 - Elke snoepje in een verwijderde rij levert evenveel punten op als het aantal snoepjes dat verwijderd worden. 
 - De speler heeft slechts een vast aantal zetten. Wanneer het aantal zetten 0 wordt is het spel gedaan. 
+Nagekeken door Bram Vanderwegen
