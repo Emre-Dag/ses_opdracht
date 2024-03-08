@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+
 }
 
 group = 'be.kuleuven'
@@ -23,6 +24,3 @@ jar {
         attributes 'Main-Class': 'be.kuleuven.Main'
     }
 }
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
