@@ -26,9 +26,3 @@ jobs:
 
     - name: test with Gradle Wrapper
       run: ./gradlew test
-
-    - name: Jar with Gradle Wrapper
-      run: ./gradlew jar
-
-    - name: voer uit with Gradle Wrapper
-      run: java -cp "build/libs/Opdracht_5-1.0-SNAPSHOT.jar;." be.kuleuven.candycrush "Emre"
