@@ -1,0 +1,8 @@
+rootProject.name = "candycrush"
+include 'src:main:Test'
+findProject(':src:main:Test')?.name = 'Test'
+include 'src:Test'
+findProject(':src:Test')?.name = 'Test'
+include 'src:Test'
+findProject(':src:Test')?.name = 'Test'
+

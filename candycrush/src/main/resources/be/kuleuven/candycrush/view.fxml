@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane prefHeight="167.0" prefWidth="158.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="be.kuleuven.candycrush.CandyCrushController">
+
+    <!-- Candy Crush grid buttons -->
+    <Button text="0" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <Button text="1" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <Button text="2" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+    <Button text="3" GridPane.columnIndex="4" />
+
+    <Button text="1" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <Button text="2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    <Button text="3" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+    <Button text="0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+
+    <Button text="2" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <Button text="3" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    <Button text="0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+    <Button text="1" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+
+    <Button text="3" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+    <Button text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+    <Button text="1" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+    <Button text="2" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+
+    <!-- Back to Login button -->
+    <Button onAction="#showLoginScene" text="Back to Login" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>
