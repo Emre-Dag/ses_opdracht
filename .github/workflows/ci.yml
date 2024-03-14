@@ -22,7 +22,9 @@ jobs:
         distribution: 'temurin'
 
     - name: build with Gradle Wrapper
-      run: ./candycrush/gradlew build
+      working-directory: ./candycrush
+      run: ./gradlew build
 
     - name: test with Gradle Wrapper
-      run: ./candycrush/gradlew test
+      working-directory: ./candycrush
+      run: ./gradlew test
