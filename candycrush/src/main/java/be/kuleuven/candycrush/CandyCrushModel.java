@@ -11,6 +11,7 @@ public class CandyCrushModel {
     private Iterable<Integer> grid;
 
     public CandyCrushModel() {
+        this.playerName="Player1";
         this.score = 0;
         this.grid = generateRandomGrid(4, 4);
     }
@@ -20,9 +21,6 @@ public class CandyCrushModel {
     }
 
     public void setPlayerName(String playerName) {
-        if (playerName.isEmpty()) {
-            throw new IllegalArgumentException("Player name cannot be empty");
-        }
         this.playerName = playerName;
     }
 

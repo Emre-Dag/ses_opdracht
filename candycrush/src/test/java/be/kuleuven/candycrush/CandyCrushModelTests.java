@@ -144,16 +144,10 @@ public class CandyCrushModelTests {
     }
 
     @Test
-    public void test_StelSpelersnaamIn_MetLegeNaam_GooitException() {
+    public void test_StelSpelersnaamIn_MetLegeNaam() {
         CandyCrushModel model = new CandyCrushModel();
-
-        // Test met een lege spelersnaam
-        String legeNaam = "";
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            model.setPlayerName(legeNaam);
-        });
-
-        // Verifieer dat de juiste uitzondering wordt opgegooid
-        assertEquals("Player name cannot be empty", exception.getMessage());
+        // Test met lege naam
+        assertDoesNotThrow(() -> model.setPlayerName(""));
+        assertEquals("", model.getPlayerName());
     }
 }
