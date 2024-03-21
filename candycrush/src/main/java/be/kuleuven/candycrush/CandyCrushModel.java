@@ -9,11 +9,12 @@ public class CandyCrushModel {
     public String playerName;
     public int score;
     private Iterable<Integer> grid;
-
-    public CandyCrushModel() {
+    public BoardSize boardSize;
+    public CandyCrushModel(BoardSize boardSize) {
+        this.boardSize = boardSize;
         this.playerName="Player1";
         this.score = 0;
-        this.grid = generateRandomGrid(4, 4);
+        this.grid = generateRandomGrid();
     }
 
     public String getPlayerName() {
@@ -45,8 +46,8 @@ public class CandyCrushModel {
     }
 
 
-    public Iterable<Integer> generateRandomGrid(int rows, int cols) {
-        int n = rows * cols;
+    public Iterable<Integer> generateRandomGrid() {
+        int n = boardSize.rows() * boardSize.columns();
         Random rd = new Random();
         Integer[] array = new Integer[n];
         int min = 0;
@@ -58,23 +59,38 @@ public class CandyCrushModel {
 
         return Arrays.asList(array);
     }
-    public int getGridValue(Iterable<Integer> grid, int width, int row, int col) {
-        // Convert Iterable<Integer> to List<Integer>
+    public int getGridValue(Iterable<Integer> grid, Position position) {
+        // Converteer Iterable<Integer> naar List<Integer>
         List<Integer> gridList = new ArrayList<>();
         grid.forEach(gridList::add);
 
-        return gridList.get(row * width + col);
+        return gridList.get(position.toIndex());
     }
-    public void updateGridValue(int index, int value) {
-        // Convert Iterable<Integer> to List<Integer>
+    public void updateGridValue(Position position, int value) {
+        // Converteer Iterable<Integer> naar List<Integer>
         List<Integer> gridList = new ArrayList<>();
         grid.forEach(gridList::add);
 
-        // Update the value at the specified index
-        gridList.set(index, value);
+        // Update de waarde op de opgegeven positie
+        gridList.set(position.toIndex(), value);
 
-        // Update the grid in the model
+        // Update het grid in het model
         updateGrid(gridList);
     }
+    // Methode om een willekeurig Candy-object aan te maken
+    public Candy createRandomCandy() {
+        Random random = new Random();
+        int candyType = random.nextInt(6); // 0-3 voor NormalCandy, 4-5 voor speciale snoepjes
 
+        return switch (candyType) {
+            case 0, 1, 2, 3 ->
+                // Maak een NormalCandy met een willekeurige kleur (0, 1, 2, of 3)
+                    new NormalCandy(random.nextInt(4));
+            case 4 -> new ChocoCrunch();
+            case 5 -> new CaramelBlast();
+            case 6 -> new LemonDrop();
+            case 7 -> new BerryBurst();
+            default -> throw new IllegalStateException("Unexpected candy type: " + candyType);
+        };
+    }
 }

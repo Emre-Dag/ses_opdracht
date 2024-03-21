@@ -13,7 +13,7 @@ public class CandyCrushModelTests {
     @Test
     public void test_GenereerWillekeurigGrid_RetourneertNietLeeg() {
         CandyCrushModel model = new CandyCrushModel();
-        Iterable<Integer> grid = model.generateRandomGrid(4, 4);
+        Iterable<Integer> grid = model.generateRandomGrid();
         assertNotNull(grid);
     }
 

@@ -15,10 +15,10 @@ Het doel van Candy Crush is om zoveel mogelijk punten te behalen door het matche
  
 3. Speciale snoepjes: 
 - Het spel kan speciale snoepjes bevatten die extra krachten hebben wanneer ze worden gematcht: 
-GumdropGlide: Wanneer je een rij van minstens 3 snoepjes maakt, wordt ook de volledige onderste rij verwijderd.  
-JellybeanJolt: Wanneer je een rij van minstens 3 snoepjes maakt, worden ook alle andere snoepje die aan de rij grenzen verwijderd. 
-GumdropGlide:  Deze snoepjes zijn dubbele punten waard. 
-JellybeanJolt: Wanneer je een rij van minstens 3 snoepjes maakt, krijg je 3 extra zetten. 
+ChocoCrunch: Wanneer je een rij van minstens 3 snoepjes maakt, wordt ook de volledige onderste rij verwijderd.  
+CaramelBlast: Wanneer je een rij van minstens 3 snoepjes maakt, worden ook alle andere snoepje die aan de rij grenzen verwijderd. 
+LemonDrop:  Deze snoepjes zijn dubbele punten waard. 
+BerryBurst: Wanneer je een rij van minstens 3 snoepjes maakt, krijg je 3 extra zetten. 
  
 4. Puntentelling en einde spel: 
 - Elke snoepje in een verwijderde rij levert evenveel punten op als het aantal snoepjes dat verwijderd worden. 
