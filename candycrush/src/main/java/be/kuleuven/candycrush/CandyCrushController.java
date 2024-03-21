@@ -77,119 +77,124 @@ public class CandyCrushController {
     }
 
     public void showCandyCrushScene() {
-
         candyGridPane = new GridPane();
 
-        // Get the grid from the model
-        Iterable<Integer> grid = model.getGrid();
-
+        // Loop through the grid to place each candy
         for (int i = 0; i < model.boardSize.rows(); i++) {
             for (int j = 0; j < model.boardSize.columns(); j++) {
-                Position position = new Position(i,j,model.boardSize);
-                final int candyValue = model.getGridValue(grid, position);
+                Position position = new Position(i, j, model.boardSize);
+                final Candy candyValue = model.getGridValue(position);
 
-                Button candyButton = new Button(String.valueOf(candyValue));
-                candyButton.setOnAction(event -> handleCandyClick(position, candyValue, grid));
+                Node candyShape = makeCandyShape(position, candyValue);
+                candyShape.setOnMouseClicked(event -> handleCandyClick(position, candyValue));
 
-                candyGridPane.add(candyButton, j, i);
+                candyGridPane.add(candyShape, j, i);
             }
         }
+
+        // Setting up the score label and adding it to the grid pane
         scoreLabel = new Label();
         updateScoreLabel();
+        candyGridPane.add(scoreLabel, model.boardSize.columns()+1, 0); // Adjust position as needed
 
-        candyGridPane.add(scoreLabel, 6, 1);
+        // Adding a back button to return to the login scene
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
-
-        candyGridPane.add(backButton, 6, 0);
+        candyGridPane.add(backButton, model.boardSize.columns()+1, 1); // Adjust position as needed
 
         primaryStage.setScene(new Scene(candyGridPane, 400, 400));
         primaryStage.setTitle("Candy Crush - " + model.getPlayerName());
     }
 
-    public void handleCandyClick(Position position, int value, Iterable<Integer> grid) {
-        // Index om te controleren
-        int indexToCheck = position.toIndex();
 
-        // Haal de indices van dezelfde buren op
-        Iterable<Integer> neighborIndices = getSameNeighboursIds.getSameNeighboursIds(grid, model.boardSize.columns(), model.boardSize.rows(), indexToCheck);
+    public void handleCandyClick(Position position, Candy clickedCandy) {
 
-        List<Integer> neighborList = new ArrayList<>();
-        neighborIndices.forEach(neighborList::add);
+        // Get same neighbor positions
+        Iterable<Position> neighborPositions = model.getSameNeighbourPositions(position);
 
-        // Verander de waarde van de cel en zijn buren naar een willekeurige waarde
-        Random rd = new Random();
-        int min = 0;
-        int max = 3;
-
-        for (int neighborIndex : neighborList) {
-            // Update de gridwaarde in het model
-            model.updateGridValue(Position.fromIndex(neighborIndex, model.boardSize), rd.nextInt(max - min + 1) + min);
+        for (Position neighborPosition : neighborPositions) {
+            Candy randomCandy = model.createRandomCandy(); // Generate a random candy
+            model.updateGridValue(neighborPosition, randomCandy); // Update the grid value with the random candy
         }
 
-        // Verander de waarde van de cel zelf naar een willekeurige waarde
-        model.updateGridValue(position, rd.nextInt(max - min + 1) + min);
+        // Change the value of the clicked cell itself to a random value
+        model.updateGridValue(position, model.createRandomCandy());
 
-        // Update de score op basis van de waarde van de geklikte snoep
-        updateScore(value);
+        // Update the score based on the value of the clicked candy
+        int value = getValueFromCandy(clickedCandy);
+        int count = 0;
+        for (Position countpos : neighborPositions) {
+            count++;
+        }
+        if (count==2) {
+            updateScore(value);
+        } else if (count == 3) {
+            updateScore(value+1);
+        } else if (count>3) {
+            updateScore(value*2);
+        }
 
-        // Update de UI om de wijzigingen weer te geven
+        // Update the UI to reflect the changes
         updateCandyGridUI(model.getGrid());
     }
 
-    public void updateCandyGridUI(Iterable<Integer> gridList) {
+
+    // Method to extract the value from the Candy object
+    private int getValueFromCandy(Candy candy) {
+        if (candy instanceof NormalCandy normalCandy) {
+            return 1; // Returns the color value for NormalCandy
+        } else if (candy instanceof ChocoCrunch) {
+            return 4; // Specific value for ChocoCrunch
+        } else if (candy instanceof CaramelBlast) {
+            return 5; // Specific value for CaramelBlast
+        } else if (candy instanceof LemonDrop) {
+            return 6; // Specific value for LemonDrop
+        } else if (candy instanceof BerryBurst) {
+            return 7; // Specific value for BerryBurst
+        } else {
+            throw new IllegalArgumentException("Unknown candy type: " + candy.getClass());
+        }
+    }
+
+    public void updateCandyGridUI(Iterable<Candy> grid) {
         if (candyGridPane == null) {
-            // Handle the case when candyGridPane is not initialized
             throw new IllegalStateException("candyGridPane is not initialized");
         }
 
-        // Clear the existing buttons
+        // Clear the existing UI components in the GridPane
         candyGridPane.getChildren().clear();
 
-        // Add the updated buttons
+        // Iterate over each position in the grid and add the corresponding shape
         for (int i = 0; i < model.boardSize.rows(); i++) {
             for (int j = 0; j < model.boardSize.columns(); j++) {
-                Position position = new Position(i,j,model.boardSize);
-                final int candyValue = model.getGridValue(gridList, position);
+                final Position position = new Position(i, j, model.boardSize);
+                final Candy candyValue = model.getGridValue(position);
 
-                Button candyButton = new Button(String.valueOf(candyValue));
-                candyButton.setOnAction(event -> handleCandyClick(position, candyValue, gridList));
+                // Use makeCandyShape to create a shape for the candy
+                Node candyShape = makeCandyShape(position, candyValue);
+                candyShape.setOnMouseClicked(event -> handleCandyClick(position, candyValue));
 
-                // Add the button to the candyGridPane
-                candyGridPane.add(candyButton, j, i);
+                // Add the shape to the GridPane
+                candyGridPane.add(candyShape, j, i);
             }
         }
 
-        // Add the back button again
+        // Re-add the score label and back button to the UI
+        addUIComponentsBack();
+    }
+    private void addUIComponentsBack() {
+        // Assuming scoreLabel is already initialized and updated
+        candyGridPane.add(scoreLabel, model.boardSize.rows()+1, 0); // Adjust position as needed
+
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
-
-        // Add the back button to the candyGridPane
-        candyGridPane.add(backButton, 6, 0);
-
-        // Add the Scores label again
-        scoreLabel = new Label();
-        updateScoreLabel();
-
-        candyGridPane.add(scoreLabel, 6, 1);
+        candyGridPane.add(backButton, model.boardSize.rows() + 1, 1); // Adjust position as needed
     }
+
     public Node makeCandyShape(Position position, Candy candy) {
         switch (candy) {
             case NormalCandy normalCandy -> {
-                int color = normalCandy.color();
-                Color circleColor;
-                switch (color) {
-                    case 0 -> circleColor = Color.RED;
-                    case 1 -> circleColor = Color.BLUE;
-                    case 2 -> circleColor = Color.GREEN;
-                    case 3 -> circleColor = Color.YELLOW;
-                    default -> throw new IllegalArgumentException("Invalid color value: " + color);
-                }
-                Circle circle = new Circle(25); // Radius 25
-                circle.setFill(circleColor);
-                circle.setCenterX(position.row());
-                circle.setCenterY(position.column());
-                return circle;
+                return getCircle(position, normalCandy);
             }
             case ChocoCrunch chocoCrunch-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
@@ -221,5 +226,22 @@ public class CandyCrushController {
             }
             default -> throw new IllegalArgumentException("Invalid candy type.");
         }
+    }
+
+    private static Circle getCircle(Position position, NormalCandy normalCandy) {
+        int color = normalCandy.color();
+        Color circleColor;
+        switch (color) {
+            case 0 -> circleColor = Color.RED;
+            case 1 -> circleColor = Color.BLUE;
+            case 2 -> circleColor = Color.GREEN;
+            case 3 -> circleColor = Color.YELLOW;
+            default -> throw new IllegalArgumentException("Invalid color value: " + color);
+        }
+        Circle circle = new Circle(25); // Radius 25
+        circle.setFill(circleColor);
+        circle.setCenterX(position.row());
+        circle.setCenterY(position.column());
+        return circle;
     }
 }
