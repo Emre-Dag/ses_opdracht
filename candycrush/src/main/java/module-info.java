@@ -1,7 +1,6 @@
 module be.kuleuven.candycrush {
     requires javafx.controls;
     requires javafx.fxml;
-    requires be.kuleuven.getSameNeighboursIds;
     requires org.controlsfx.controls;
 
     opens be.kuleuven.candycrush to javafx.fxml;

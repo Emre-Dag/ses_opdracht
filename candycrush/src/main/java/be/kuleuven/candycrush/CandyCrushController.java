@@ -1,5 +1,4 @@
 package be.kuleuven.candycrush;
-import be.kuleuven.getSameNeighboursIds;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -9,14 +8,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+
+import javafx.scene.effect.DropShadow;
 
 public class CandyCrushController {
     public final Stage primaryStage;
@@ -198,6 +196,8 @@ public class CandyCrushController {
             }
             case ChocoCrunch chocoCrunch-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
+                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.BROWN);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
@@ -205,6 +205,8 @@ public class CandyCrushController {
             }
             case CaramelBlast caramelBlast-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
+                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.ORANGE);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
@@ -212,6 +214,8 @@ public class CandyCrushController {
             }
             case LemonDrop lemonDrop-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
+                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.YELLOW);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
@@ -219,6 +223,8 @@ public class CandyCrushController {
             }
             case BerryBurst berryBurst-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
+                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.PURPLE);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
@@ -240,6 +246,9 @@ public class CandyCrushController {
         }
         Circle circle = new Circle(25); // Radius 25
         circle.setFill(circleColor);
+        // Add drop shadow effect to the circle
+        DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+        circle.setEffect(dropShadow);
         circle.setCenterX(position.row());
         circle.setCenterY(position.column());
         return circle;
