@@ -78,10 +78,10 @@ public class CandyCrushController {
         candyGridPane = new GridPane();
 
         // Loop through the grid to place each candy
-        for (int i = 0; i < model.boardSize.rows(); i++) {
-            for (int j = 0; j < model.boardSize.columns(); j++) {
-                Position position = new Position(i, j, model.boardSize);
-                final Candy candyValue = model.getGridValue(position);
+        for (int i = 0; i < model.candyBoard.boardSize.rows(); i++) {
+            for (int j = 0; j < model.candyBoard.boardSize.columns(); j++) {
+                Position position = new Position(i, j, model.candyBoard.boardSize);
+                final Candy candyValue = model.candyBoard.getCellAt(position);
 
                 Node candyShape = makeCandyShape(position, candyValue);
                 candyShape.setOnMouseClicked(event -> handleCandyClick(position, candyValue));
@@ -93,12 +93,12 @@ public class CandyCrushController {
         // Setting up the score label and adding it to the grid pane
         scoreLabel = new Label();
         updateScoreLabel();
-        candyGridPane.add(scoreLabel, model.boardSize.columns()+1, 0); // Adjust position as needed
+        candyGridPane.add(scoreLabel, model.candyBoard.boardSize.columns()+1, 0); // Adjust position as needed
 
         // Adding a back button to return to the login scene
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
-        candyGridPane.add(backButton, model.boardSize.columns()+1, 1); // Adjust position as needed
+        candyGridPane.add(backButton, model.candyBoard.boardSize.columns()+1, 1); // Adjust position as needed
 
         primaryStage.setScene(new Scene(candyGridPane, 400, 400));
         primaryStage.setTitle("Candy Crush - " + model.getPlayerName());
@@ -106,55 +106,58 @@ public class CandyCrushController {
 
 
     public void handleCandyClick(Position position, Candy clickedCandy) {
-
         // Get same neighbor positions
         Iterable<Position> neighborPositions = model.getSameNeighbourPositions(position);
 
         for (Position neighborPosition : neighborPositions) {
-            Candy randomCandy = model.createRandomCandy(); // Generate a random candy
-            model.updateGridValue(neighborPosition, randomCandy); // Update the grid value with the random candy
+            Candy randomCandy = model.createRandomCandy(neighborPosition); // Generate a random candy for each neighbor position
+            model.candyBoard.replaceCellAt(neighborPosition, randomCandy); // Update the grid value with the random candy
         }
 
         // Change the value of the clicked cell itself to a random value
-        model.updateGridValue(position, model.createRandomCandy());
+        Candy randomCandy = model.createRandomCandy(position);
+        model.candyBoard.replaceCellAt(position, randomCandy);
 
         // Update the score based on the value of the clicked candy
         int value = getValueFromCandy(clickedCandy);
         int count = 0;
-        for (Position countpos : neighborPositions) {
+        for (Position ignored : neighborPositions) {
             count++;
         }
-        if (count==2) {
+        if (count == 2) {
             updateScore(value);
         } else if (count == 3) {
-            updateScore(value+1);
-        } else if (count>3) {
-            updateScore(value*2);
+            updateScore(value + 1);
+        } else if (count > 3) {
+            updateScore(value * 2);
         }
 
         // Update the UI to reflect the changes
-        updateCandyGridUI(model.getGrid());
+        updateCandyGridUI(); // Update the UI with the candyBoard
     }
 
 
     // Method to extract the value from the Candy object
     private int getValueFromCandy(Candy candy) {
-        if (candy instanceof NormalCandy normalCandy) {
-            return 1; // Returns the color value for NormalCandy
-        } else if (candy instanceof ChocoCrunch) {
-            return 4; // Specific value for ChocoCrunch
-        } else if (candy instanceof CaramelBlast) {
-            return 5; // Specific value for CaramelBlast
-        } else if (candy instanceof LemonDrop) {
-            return 6; // Specific value for LemonDrop
-        } else if (candy instanceof BerryBurst) {
-            return 7; // Specific value for BerryBurst
-        } else {
-            throw new IllegalArgumentException("Unknown candy type: " + candy.getClass());
-        }
+        return switch (candy) {
+            case NormalCandy ignored -> 1; // Returns the color value for NormalCandy
+
+            case ChocoCrunch chocoCrunch -> 4; // Specific value for ChocoCrunch
+
+            case CaramelBlast caramelBlast -> 5; // Specific value for CaramelBlast
+
+            case LemonDrop lemonDrop -> 6; // Specific value for LemonDrop
+
+            case BerryBurst berryBurst -> 7; // Specific value for BerryBurst
+
+            case null -> {
+                assert false;
+                throw new IllegalArgumentException("Unknown candy type: " + candy.getClass());
+            }
+        };
     }
 
-    public void updateCandyGridUI(Iterable<Candy> grid) {
+    public void updateCandyGridUI() {
         if (candyGridPane == null) {
             throw new IllegalStateException("candyGridPane is not initialized");
         }
@@ -166,7 +169,7 @@ public class CandyCrushController {
         for (int i = 0; i < model.boardSize.rows(); i++) {
             for (int j = 0; j < model.boardSize.columns(); j++) {
                 final Position position = new Position(i, j, model.boardSize);
-                final Candy candyValue = model.getGridValue(position);
+                final Candy candyValue = model.candyBoard.getCellAt(position);
 
                 // Use makeCandyShape to create a shape for the candy
                 Node candyShape = makeCandyShape(position, candyValue);
@@ -196,25 +199,25 @@ public class CandyCrushController {
             }
             case ChocoCrunch chocoCrunch-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
-                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                DropShadow dropShadow = new DropShadow(10, Color.CHOCOLATE);
                 rectangle.setEffect(dropShadow);
-                rectangle.setFill(Color.BROWN);
+                rectangle.setFill(Color.CHOCOLATE);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
                 return rectangle;
             }
             case CaramelBlast caramelBlast-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
-                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                DropShadow dropShadow = new DropShadow(20, Color.FIREBRICK);
                 rectangle.setEffect(dropShadow);
-                rectangle.setFill(Color.ORANGE);
+                rectangle.setFill(Color.BISQUE);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
                 rectangle.setY(position.column() - 25);
                 return rectangle;
             }
             case LemonDrop lemonDrop-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
-                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                DropShadow dropShadow = new DropShadow(10, Color.LIGHTGOLDENRODYELLOW);
                 rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.YELLOW);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering
@@ -223,7 +226,7 @@ public class CandyCrushController {
             }
             case BerryBurst berryBurst-> {
                 Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
-                DropShadow dropShadow = new DropShadow(20, Color.BLACK);
+                DropShadow dropShadow = new DropShadow(10, Color.DARKBLUE);
                 rectangle.setEffect(dropShadow);
                 rectangle.setFill(Color.PURPLE);
                 rectangle.setX(position.row() - 25); // Adjusting position for centering

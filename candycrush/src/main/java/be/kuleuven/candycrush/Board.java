@@ -3,8 +3,8 @@ package be.kuleuven.candycrush;
 import java.util.function.Function;
 
 public class Board<T> {
-    private final T[][] cells;
-    private final BoardSize boardSize;
+    public final T[][] cells;
+    public final BoardSize boardSize;
 
     public Board(BoardSize boardSize) {
         this.boardSize = boardSize;

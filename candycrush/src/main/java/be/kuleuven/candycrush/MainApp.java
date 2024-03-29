@@ -11,7 +11,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        BoardSize boardsize = new BoardSize(4,4);
+        BoardSize boardsize = new BoardSize(6,6);
         CandyCrushModel model = new CandyCrushModel(boardsize);
         CandyCrushController controller = new CandyCrushController(primaryStage,model);
         controller.startGame();

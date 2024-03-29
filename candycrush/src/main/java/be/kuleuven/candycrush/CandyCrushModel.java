@@ -8,14 +8,15 @@ import java.util.Random;
 public class CandyCrushModel {
     public String playerName;
     public int score;
-    private Iterable<Candy> grid; // Update grid type to Iterable<Candy>
     public BoardSize boardSize;
+    public Board<Candy> candyBoard;
 
     public CandyCrushModel(BoardSize boardSize) {
         this.boardSize = boardSize;
+        this.candyBoard = new Board<>(boardSize);
         this.playerName = "Player1";
         this.score = 0;
-        this.grid = generateRandomGrid();
+        generateRandomGrid();
     }
 
     public String getPlayerName() {
@@ -34,46 +35,23 @@ public class CandyCrushModel {
         score += value;
     }
 
-    public Iterable<Candy> getGrid() {
-        return grid;
+    public Board<Candy> getCandyBoard() {
+        return candyBoard;
+    }
+    public void generateRandomGrid() {
+        candyBoard.fill(this::createRandomCandy);
     }
 
-    public void updateGrid(List<Candy> newGrid) {
-        if (newGrid == null) {
-            throw new NullPointerException("New grid cannot be null");
-        }
-        grid = newGrid;
+    public Candy getCandyAt(Position position) {
+        return candyBoard.getCellAt(position);
     }
 
-    public Iterable<Candy> generateRandomGrid() {
-        int n = boardSize.rows() * boardSize.columns();
-        List<Candy> candies = new ArrayList<>();
-
-        for (int i = 0; i < n; i++) {
-            candies.add(createRandomCandy()); // Add random candies
-        }
-
-        return candies;
-    }
-
-    public Candy getGridValue(Position position) {
-        List<Candy> gridList = new ArrayList<>();
-        grid.forEach(gridList::add);
-
-        return gridList.get(position.toIndex());
-    }
-
-    public void updateGridValue(Position position, Candy candy) {
-        List<Candy> gridList = new ArrayList<>();
-        grid.forEach(gridList::add);
-
-        gridList.set(position.toIndex(), candy);
-
-        updateGrid(gridList);
+    public void updateCandyAt(Position position, Candy candy) {
+        candyBoard.replaceCellAt(position, candy);
     }
 
     // Method to create a random Candy object
-    public Candy createRandomCandy() {
+    public Candy createRandomCandy(Position position) {
         Random random = new Random();
         int candyType = random.nextInt(8); // 0-3 for NormalCandy, 4-7 for special candies
 
@@ -96,10 +74,10 @@ public class CandyCrushModel {
         // Iterate over the neighbor positions of the given position
         for (Position neighborPosition : position.neighborPositions()) {
             // Retrieve the candy at the neighbor position
-            Candy neighborCandy = getGridValue(neighborPosition);
+            Candy neighborCandy = candyBoard.getCellAt(neighborPosition);
 
             // Add the neighbor position to the result if it's valid and has the same candy
-            if (isValidPosition(neighborPosition.row(), neighborPosition.column()) && compareCandyAtPosition(neighborCandy, getGridValue(position))) {
+            if (isValidPosition(neighborPosition.row(), neighborPosition.column()) && compareCandyAtPosition(neighborCandy, candyBoard.getCellAt(position))) {
                 result.add(neighborPosition);
             }
         }
@@ -108,7 +86,7 @@ public class CandyCrushModel {
     }
 
 
-    private boolean compareCandyAtPosition(Candy neighborCandy, Candy candyToCheck) {
+    public boolean compareCandyAtPosition(Candy neighborCandy, Candy candyToCheck) {
         return neighborCandy.equals(candyToCheck);
     }
 
