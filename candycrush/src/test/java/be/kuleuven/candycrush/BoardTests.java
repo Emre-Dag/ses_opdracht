@@ -1,45 +1,74 @@
 package be.kuleuven.candycrush;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BoardTests {
 
     @Test
-    public void testGetAndReplaceCellAt() {
-        BoardSize boardSize = new BoardSize(3, 3);
-        Board<Integer> board = new Board<>(boardSize);
-        Position position = new Position(1, 1, boardSize);
-        assertNull(board.getCellAt(position));
-        board.replaceCellAt(position, 5);
-        assertEquals(5, board.getCellAt(position));
+    public void givenEmptyBoard_whenGettingCellAtValidPosition_thenCellShouldBeNull() {
+        // Arrange
+        Board<String> board = new Board<>(new BoardSize(3, 3));
+
+        // Act
+        String cell = board.getCellAt(new Position(1, 1,board.boardSize));
+
+        // Assert
+        assertNull(cell);
     }
 
     @Test
-    public void testFill() {
-        BoardSize boardSize = new BoardSize(2, 2);
-        Board<String> board = new Board<>(boardSize);
-        board.fill(position -> "Cell at (" + position.row() + ", " + position.column() + ")");
-        assertEquals("Cell at (0, 0)", board.getCellAt(new Position(0, 0, boardSize)));
-        assertEquals("Cell at (0, 1)", board.getCellAt(new Position(0, 1, boardSize)));
-        assertEquals("Cell at (1, 0)", board.getCellAt(new Position(1, 0, boardSize)));
-        assertEquals("Cell at (1, 1)", board.getCellAt(new Position(1, 1, boardSize)));
+    public void givenBoardWithCell_whenReplacingCell_thenNewCellShouldBeRetrieved() {
+        // Arrange
+        Board<Integer> board = new Board<>(new BoardSize(3, 3));
+        Position position = new Position(1, 1,board.boardSize);
+        int newCell = 42;
+
+        // Act
+        board.replaceCellAt(position, newCell);
+        Integer retrievedCell = board.getCellAt(position);
+
+        // Assert
+        assertEquals(newCell, retrievedCell);
     }
 
     @Test
-    public void testCopyTo() {
-        BoardSize boardSize = new BoardSize(2, 2);
-        Board<Integer> board1 = new Board<>(boardSize);
-        board1.fill(position -> position.row() * 10 + position.column());
-
-        Board<Integer> board2 = new Board<>(boardSize);
-        board1.copyTo(board2);
-
-        for (int row = 0; row < boardSize.rows(); row++) {
-            for (int column = 0; column < boardSize.columns(); column++) {
-                assertEquals(board1.getCellAt(new Position(row, column, boardSize)),
-                        board2.getCellAt(new Position(row, column, boardSize)));
+    public void givenBoardFilledWithCells_whenGettingPositionsOfElement_thenAllPositionsShouldBeReturned() {
+        // Arrange
+        Board<String> board = new Board<>(new BoardSize(3, 3));
+        String element = "test";
+        Set<Position> expectedPositions = new HashSet<>();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Position position = new Position(i, j,board.boardSize);
+                expectedPositions.add(position);
+                board.replaceCellAt(position, element);
             }
         }
+
+        // Act
+        Set<Position> positions = board.getPositionsOfElement(element);
+
+        // Assert
+        assertEquals(expectedPositions, positions);
+    }
+
+    @Test
+    public void givenBoardWithOneCell_whenGettingPositionsOfNonexistentElement_thenEmptySetShouldBeReturned() {
+        // Arrange
+        Board<String> board = new Board<>(new BoardSize(3, 3));
+        Position position = new Position(1, 1,board.boardSize);
+        String element = "test";
+        board.replaceCellAt(position, element);
+
+        // Act
+        Set<Position> positions = board.getPositionsOfElement("nonexistent");
+
+        // Assert
+        assertTrue(positions.isEmpty());
     }
 }
