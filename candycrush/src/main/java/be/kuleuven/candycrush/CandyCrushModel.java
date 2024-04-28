@@ -1,9 +1,11 @@
 package be.kuleuven.candycrush;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class CandyCrushModel {
     public String playerName;
@@ -93,4 +95,47 @@ public class CandyCrushModel {
     private boolean isValidPosition(int row, int col) {
         return row >= 0 && row < boardSize.rows() && col >= 0 && col < boardSize.columns();
     }
+
+    public boolean firstTwoHaveCandy(Candy candy, Stream<Position> positions) {
+        return positions.limit(2).allMatch(pos -> compareCandyAtPosition(candy, getCandyAt(pos)));
+    }
+    public Stream<Position> horizontalStartingPositions() {
+        return boardSize.positions().stream()
+                .filter(pos -> !firstTwoHaveCandy(getCandyAt(pos), pos.walkLeft())||pos.column()==0);
+    }
+
+    public Stream<Position> verticalStartingPositions() {
+        return boardSize.positions().stream()
+                .filter(pos -> !firstTwoHaveCandy(getCandyAt(pos), pos.walkUp())||pos.row()==0);
+    }
+    public List<Position> longestMatchToRight(Position pos) {
+        return pos.walkRight().takeWhile(nextPos -> compareCandyAtPosition(getCandyAt(nextPos), getCandyAt(pos)))
+                .collect(Collectors.toList());
+    }
+
+    public List<Position> longestMatchDown(Position pos) {
+        return pos.walkDown().takeWhile(nextPos -> compareCandyAtPosition(getCandyAt(nextPos), getCandyAt(pos)))
+                .collect(Collectors.toList());
+    }
+
+    public Set<List<Position>> findAllMatches() {
+        Set<List<Position>> matches = new HashSet<>();
+
+        // Horizontale matches
+        Stream<Position> horizontalStartingPositions = horizontalStartingPositions();
+        Stream<List<Position>> horizontalMatches = horizontalStartingPositions
+                .map(this::longestMatchToRight)
+                .filter(match -> match.size() >= 3); // filter matches with more than 3 candies
+        matches.addAll(horizontalMatches.collect(Collectors.toSet()));
+
+        // Verticale matches
+        Stream<Position> verticalStartingPositions = verticalStartingPositions();
+        Stream<List<Position>> verticalMatches = verticalStartingPositions
+                .map(this::longestMatchDown)
+                .filter(match -> match.size() >= 3); // filter matches with more than 3 candies
+        matches.addAll(verticalMatches.collect(Collectors.toSet()));
+
+        return matches;
+    }
+
 }

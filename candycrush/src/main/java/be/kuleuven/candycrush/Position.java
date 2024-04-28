@@ -2,7 +2,7 @@ package be.kuleuven.candycrush;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Stream;
 public record Position(int row, int column, BoardSize boardSize) {
     public Position {
         if (row < 0 || row >= boardSize.rows() || column < 0 || column >= boardSize.columns()) {
@@ -37,7 +37,25 @@ public record Position(int row, int column, BoardSize boardSize) {
 
         return neighbors;
     }
+    public Stream<Position> walkLeft() {
+        return Stream.iterate(this, pos -> new Position(pos.row(), pos.column() - 1, boardSize))
+                .limit(column+1);
+    }
 
+    public Stream<Position> walkRight() {
+        return Stream.iterate(this, pos -> new Position(pos.row(), pos.column() + 1, boardSize))
+                .limit(boardSize.columns() - column );
+    }
+
+    public Stream<Position> walkUp() {
+        return Stream.iterate(this, pos -> new Position(pos.row() - 1, pos.column(), boardSize))
+                .limit(row+1);
+    }
+
+    public Stream<Position> walkDown() {
+        return Stream.iterate(this, pos -> new Position(pos.row() + 1, pos.column(), boardSize))
+                .limit(boardSize.rows() - row );
+    }
 
     public boolean isLastColumn() {
         return column == boardSize.columns() - 1;
