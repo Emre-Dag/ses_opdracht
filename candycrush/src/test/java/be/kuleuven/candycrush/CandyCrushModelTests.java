@@ -223,6 +223,140 @@ public class CandyCrushModelTests {
 
         assertEquals(expectedMatches, actualMatches);
     }
+    @Test
+    public void testClearMatch() {
+        BoardSize boardSize = new BoardSize(5, 5); // Assuming a 5x5 board for simplicity.
+        CandyCrushModel model = initializeModelWithCandies(boardSize);
 
+        // Voeg een extra snoepje toe om een match te creëren
+        model.candyBoard.replaceCellAt(new Position(2, 2, boardSize), new NormalCandy(1)); // Creëer een verticale match
 
+        // Verwachte snoepjes die moeten worden verwijderd
+        Set<Position> expectedRemovedCandies = new HashSet<>();
+        expectedRemovedCandies.add(new Position(0, 2, boardSize));
+        expectedRemovedCandies.add(new Position(1, 2, boardSize));
+        expectedRemovedCandies.add(new Position(2, 2, boardSize));
+        expectedRemovedCandies.add(new Position(3, 2, boardSize));
+        model.printBoard();
+        // Voer clearMatch uit voor de match die is gevonden
+        List<Position> matchToRemove = Arrays.asList(
+                new Position(0, 2, boardSize),
+                new Position(1, 2, boardSize),
+                new Position(2, 2, boardSize),
+                new Position(3, 2, boardSize)
+        );
+        model.clearMatch(matchToRemove);
+        System.out.println();
+        model.printBoard();
+        // Controleer of de verwijderde snoepjes inderdaad niet meer aanwezig zijn op het speelbord
+        for (Position position : expectedRemovedCandies) {
+            assertNull(model.getCandyAt(position));
+        }
+    }
+
+    @Test
+    public void testFallDownTo() {
+        // Maak een bord van 5x5 en initialiseer het met snoepjes
+        BoardSize boardSize = new BoardSize(5, 5);
+        CandyCrushModel model = initializeModelWithCandies(boardSize);
+        // Add null
+        model.candyBoard.replaceCellAt(new Position(3, 3, boardSize), null); // Create a null
+        model.candyBoard.replaceCellAt(new Position(1, 3, boardSize), null); // Create a null
+        model.candyBoard.replaceCellAt(new Position(4, 3, boardSize), null); // Create a null
+        //0 1 1 1 0
+        //1 2 1 n 1
+        //2 2 0 1 2
+        //3 2 1 n 3
+        //0 1 2 n 0
+        model.printBoard();
+        System.out.println();
+        // Voer fallDownTo uit op positie (1,0)
+        model.fallDownTo(new Position(4, 3, boardSize));
+        System.out.println();
+        model.printBoard();
+        // Controleer of de snoepjes correct zijn gevallen
+        assertEquals(new NormalCandy(1), model.candyBoard.getCellAt(new Position(4, 3, boardSize)));
+        assertEquals(new NormalCandy(1), model.candyBoard.getCellAt(new Position(3, 3, boardSize)));
+        assertNull(model.candyBoard.getCellAt(new Position(0, 3, boardSize)));
+        assertNull(model.candyBoard.getCellAt(new Position(0, 3, boardSize)));
+        assertNull(model.candyBoard.getCellAt(new Position(0, 3, boardSize)));
+        assertEquals(new NormalCandy(1), model.candyBoard.getCellAt(new Position(3, 2, boardSize)));
+    }
+
+    @Test
+    public void testUpdateBoard() {
+        // Maak een bord van 5x5 en initialiseer het met snoepjes
+        BoardSize boardSize = new BoardSize(5, 5);
+        CandyCrushModel model = initializeModelWithCandies(boardSize);
+        // Add more candies to create matches
+        model.candyBoard.replaceCellAt(new Position(2, 2, boardSize), new NormalCandy(1)); // Create a vertical match
+
+        //0 1 1 1 0
+        //1 2 1 0 1
+        //2 2 1 1 2
+        //3 2 1 2 3
+        //0 1 2 3 0
+        // Voer de updateBoard-methode uit
+        model.printBoard();
+        boolean matchRemoved = model.updateBoard();
+        System.out.println("Test result:");
+        model.printBoard();
+        // Controleer of minstens één match verwijderd is
+        assertTrue(matchRemoved);
+        System.out.println();
+        // Controleer of er geen matches meer zijn
+        assertFalse(model.updateBoard());
+        System.out.println("Test 2:");
+        CandyCrushModel model2 = initializeModelWith0and1(boardSize);
+        // Voer de updateBoard-methode uit
+        model2.printBoard();
+        matchRemoved = model2.updateBoard();
+        System.out.println("Test result 2:");
+        model2.printBoard();
+        // Controleer of minstens één match verwijderd is
+        assertTrue(matchRemoved);
+        System.out.println();
+        // Controleer of er geen matches meer zijn
+        assertFalse(model2.updateBoard());
+    }
+
+    private CandyCrushModel initializeModelWith0and1(BoardSize boardSize) {
+        CandyCrushModel model = new CandyCrushModel(boardSize);
+        // Manually populate the board with candies
+        model.candyBoard.replaceCellAt(new Position(0, 0, boardSize), new NormalCandy(1));  // Row 0, Column 0
+        model.candyBoard.replaceCellAt(new Position(0, 1, boardSize), new NormalCandy(0));  // Row 0, Column 1
+        model.candyBoard.replaceCellAt(new Position(0, 2, boardSize), new NormalCandy(0));  // Row 0, Column 2
+        model.candyBoard.replaceCellAt(new Position(0, 3, boardSize), new NormalCandy(0));  // Row 0, Column 3
+        model.candyBoard.replaceCellAt(new Position(0, 4, boardSize), new NormalCandy(1));  // Row 0, Column 4
+
+        model.candyBoard.replaceCellAt(new Position(1, 0, boardSize), new NormalCandy(0));  // Row 1, Column 0
+        model.candyBoard.replaceCellAt(new Position(1, 1, boardSize), new NormalCandy(1));  // Row 1, Column 1
+        model.candyBoard.replaceCellAt(new Position(1, 2, boardSize), new NormalCandy(0));  // Row 1, Column 2
+        model.candyBoard.replaceCellAt(new Position(1, 3, boardSize), new NormalCandy(1));  // Row 1, Column 3
+        model.candyBoard.replaceCellAt(new Position(1, 4, boardSize), new NormalCandy(0));  // Row 1, Column 4
+
+        model.candyBoard.replaceCellAt(new Position(2, 0, boardSize), new NormalCandy(0));  // Row 2, Column 0
+        model.candyBoard.replaceCellAt(new Position(2, 1, boardSize), new NormalCandy(0));  // Row 2, Column 1
+        model.candyBoard.replaceCellAt(new Position(2, 2, boardSize), new NormalCandy(1));  // Row 2, Column 2
+        model.candyBoard.replaceCellAt(new Position(2, 3, boardSize), new NormalCandy(0));  // Row 2, Column 3
+        model.candyBoard.replaceCellAt(new Position(2, 4, boardSize), new NormalCandy(0));  // Row 2, Column 4
+
+        model.candyBoard.replaceCellAt(new Position(3, 0, boardSize), new NormalCandy(0));  // Row 3, Column 0
+        model.candyBoard.replaceCellAt(new Position(3, 1, boardSize), new NormalCandy(1));  // Row 3, Column 1
+        model.candyBoard.replaceCellAt(new Position(3, 2, boardSize), new NormalCandy(0));  // Row 3, Column 2
+        model.candyBoard.replaceCellAt(new Position(3, 3, boardSize), new NormalCandy(1));  // Row 3, Column 3
+        model.candyBoard.replaceCellAt(new Position(3, 4, boardSize), new NormalCandy(0));  // Row 3, Column 4
+
+        model.candyBoard.replaceCellAt(new Position(4, 0, boardSize), new NormalCandy(1));  // Row 4, Column 0
+        model.candyBoard.replaceCellAt(new Position(4, 1, boardSize), new NormalCandy(0));  // Row 4, Column 1
+        model.candyBoard.replaceCellAt(new Position(4, 2, boardSize), new NormalCandy(0));  // Row 4, Column 2
+        model.candyBoard.replaceCellAt(new Position(4, 3, boardSize), new NormalCandy(0));  // Row 4, Column 3
+        model.candyBoard.replaceCellAt(new Position(4, 4, boardSize), new NormalCandy(1));  // Row 4, Column 4
+        //0 1 0 1 0
+        //1 0 1 0 1
+        //0 0 1 0 0
+        //1 0 1 0 1
+        //0 1 0 1 0
+        return model;
+    }
 }
