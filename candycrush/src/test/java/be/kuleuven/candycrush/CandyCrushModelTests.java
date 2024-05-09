@@ -301,6 +301,7 @@ public class CandyCrushModelTests {
         boolean matchRemoved = model.updateBoard();
         System.out.println("Test result:");
         model.printBoard();
+        System.out.println(model.score);
         // Controleer of minstens één match verwijderd is
         assertTrue(matchRemoved);
         System.out.println();
@@ -318,6 +319,8 @@ public class CandyCrushModelTests {
         System.out.println();
         // Controleer of er geen matches meer zijn
         assertFalse(model2.updateBoard());
+        System.out.println(model2.score);
+
     }
 
     private CandyCrushModel initializeModelWith0and1(BoardSize boardSize) {
@@ -358,5 +361,129 @@ public class CandyCrushModelTests {
         //1 0 1 0 1
         //0 1 0 1 0
         return model;
+    }
+    @Test
+    public void testSwapCandies() {
+        // Create a CandyCrushModel instance with a known initial state
+        CandyCrushModel model = createBoardFromString("""
+           @@o#
+           o*#o
+           @@**
+           *#@@""");
+        model.printBoard();
+        System.out.println();
+        // Perform the swap operation
+        model.swapCandies(1, 0, 1, 1);
+
+        model.printBoard();
+    }
+
+    @Test
+    public void testNoValidSwitchesWithValidSwitch() {
+        // Create a CandyCrushModel instance with a known initial state
+        CandyCrushModel model = createBoardFromString("""
+           @@o#
+           o*#o
+           @@**
+           *#@@""");
+
+        assertFalse(model.noValidSwitches());
+    }
+    @Test
+    public void testMaximizeScore() {
+        // Create a CandyCrushModel instance
+        CandyCrushModel model =  createBoardFromString("""
+           @@o#
+           o*#o
+           @@**
+           *#@@""");
+        model.printBoard();
+        // Call the maximizeScore method
+        var maximized = model.maximizeScore();
+        System.out.println(maximized);
+        // Output the best sequence of moves
+        System.out.println("Best sequence of moves to maximize score:");
+        for (List<Position> positions : model.bestSequence) {
+            for (Position pos : positions) {
+                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+            }
+            //System.out.println();
+        }
+        System.out.println("max score: "+model.maxScore);
+    }
+
+    @Test
+    public void testMaximizeScore2() {
+        // Create a CandyCrushModel instance
+        CandyCrushModel model = createBoardFromString("""
+   #oo##
+   #@o@@
+   *##o@
+   @@*@o
+   **#*o""");
+        model.printBoard();
+        // Call the maximizeScore method
+        var maximized = model.maximizeScore();
+        System.out.println(maximized);
+        // Output the best sequence of moves
+        System.out.println("Best sequence of moves to maximize score:");
+        for (List<Position> positions : model.bestSequence) {
+            for (Position pos : positions) {
+                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+            }
+            //System.out.println();
+        }
+        System.out.println("max score: "+model.maxScore);
+    }
+
+    @Test
+    public void testMaximizeScore3() {
+        // Create a CandyCrushModel instance
+        CandyCrushModel model = createBoardFromString("""
+   #@#oo@
+   @**@**
+   o##@#o
+   @#oo#@
+   @*@**@
+   *#@##*""");
+        model.printBoard();
+        // Call the maximizeScore method
+        var maximized = model.maximizeScore();
+        System.out.println(maximized);
+        // Output the best sequence of moves
+        System.out.println("Best sequence of moves to maximize score:");
+        for (List<Position> positions : model.bestSequence) {
+            for (Position pos : positions) {
+                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+            }
+            //System.out.println();
+        }
+        System.out.println("max score: "+model.maxScore);
+    }
+    public static CandyCrushModel createBoardFromString(String configuration) {
+        var lines = configuration.toLowerCase().lines().toList();
+        BoardSize size = new BoardSize(lines.size(), lines.getFirst().length());
+        var model = createNewModel(size);
+        for (int row = 0; row < lines.size(); row++) {
+            var line = lines.get(row);
+            for (int col = 0; col < line.length(); col++) {
+                model.updateCandyAt(new Position(row, col, size), characterToCandy(line.charAt(col)));
+            }
+        }
+        return model;
+    }
+    private static Candy characterToCandy(char c) {
+        return switch(c) {
+            case '.' -> null;
+            case 'o' -> new NormalCandy(0);
+            case '*' -> new NormalCandy(1);
+            case '#' -> new NormalCandy(2);
+            case '@' -> new NormalCandy(3);
+            default -> throw new IllegalArgumentException("Unexpected value: " + c);
+        };
+    }
+    public static CandyCrushModel createNewModel(BoardSize size) {
+        // Creeer een nieuw model met de opgegeven grootte en een leeg speelbord
+        return new CandyCrushModel(size);
     }
 }

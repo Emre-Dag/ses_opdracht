@@ -13,6 +13,9 @@ public class CandyCrushModel {
     public BoardSize boardSize;
     public Board<Candy> candyBoard;
 
+    public int maxScore;
+    public List<List<Position>> bestSequence;
+
     public CandyCrushModel(BoardSize boardSize) {
         this.boardSize = boardSize;
         this.candyBoard = new Board<>(boardSize);
@@ -193,13 +196,16 @@ public class CandyCrushModel {
 
         // Find all matches on the board
         Set<List<Position>> matches = findAllMatches();
-        System.out.println();
-        System.out.println(matches);
 
         // If there are matches, clear them and let the candies fall down
         if (!matches.isEmpty()) {
             matchRemoved = true;
             for (List<Position> match : matches) {
+                // Calculate the score gained from the current match
+                int matchScore = calculateMatchScore(match);
+                // Update the total score
+                updateScore(matchScore);
+                // Clear the current match
                 clearMatch(match);
             }
             // After clearing matches, let candies fall down
@@ -215,6 +221,10 @@ public class CandyCrushModel {
         return matchRemoved;
     }
 
+    private int calculateMatchScore(List<Position> match) {
+        return match.size() ;
+    }
+
 
 
     public void printBoard() {
@@ -226,28 +236,151 @@ public class CandyCrushModel {
                 Position currentPosition = new Position(i, j, boardSize);
                 Candy currentCandy = candyBoard.getCellAt(currentPosition);
                 switch (currentCandy) {
-                    case NormalCandy normalCandy -> {
-                        NormalCandy normalCandy1 = (NormalCandy) currentCandy;
-                        System.out.print(normalCandy1.color() + " ");
-                    }
-                    case ChocoCrunch chocoCrunch -> {
-                        System.out.print("5 ");
-                    }
-                    case CaramelBlast caramelBlast -> {
-                        System.out.print("6 ");
-                    }
-                    case LemonDrop lemonDrop -> {
-                        System.out.print("7 ");
-                    }
-                    case BerryBurst berryBurst -> {
-                        System.out.print("8 ");
-                    }
-                    case null, default ->{
-                        System.out.print("n ");
-                    }
+                    case NormalCandy normalCandy -> System.out.print(normalCandy.color() + " ");
+                    case ChocoCrunch chocoCrunch -> System.out.print("5 ");
+                    case CaramelBlast caramelBlast -> System.out.print("6 ");
+                    case LemonDrop lemonDrop -> System.out.print("7 ");
+                    case BerryBurst berryBurst -> System.out.print("8 ");
+                    case null, default -> System.out.print("n ");
                 }
             }
             System.out.println();
         }
+    }
+
+    public List<List<Position>> maximizeScore() {
+        maxScore = 0;
+        bestSequence = new ArrayList<>();
+        List<List<Position>> currentSequence = new ArrayList<>();
+        updateBoard(); // Update the board initially
+        backtrack(currentSequence);
+        return bestSequence;
+    }
+
+    private void backtrack(List<List<Position>> currentSequence) {
+        //printBoard();
+        //System.out.println();
+        // Base case: If there are no more valid switches or the board is empty after updates, return
+        if ((noValidSwitches()&& findAllMatches().isEmpty()) || boardIsEmpty()) {
+            int currentScore = getScore();
+            if (currentScore > maxScore) {
+                maxScore = currentScore;
+                bestSequence = currentSequence;
+                //System.out.println("New best sequence found: " + bestSequence);
+            }
+            return;
+        }
+
+        // For horizontal swaps
+        for (int row = 0; row < boardSize.rows(); row++) {
+            for (int col = 0; col < boardSize.columns() - 1; col++) {
+                if(matchAfterSwitch(row, col, row, col + 1)) {
+                    // Perform the horizontal swap
+                    swapCandies(row, col, row, col + 1);
+                    currentSequence.add(List.of(new Position(row, col, boardSize), new Position(row, col + 1, boardSize)));
+                    // Recursively call backtrack
+                    //System.out.println("Performing horizontal swap: (" + row + "," + col + ") <-> (" + row + "," + (col + 1) + ")");
+                    // Create a copy of the model
+                    CandyCrushModel copyModel = new CandyCrushModel(boardSize);
+                    candyBoard.copyTo(copyModel.candyBoard);
+                    copyModel.score = score;
+
+                    updateBoard(); // Update the board after the swap
+                    backtrack(new ArrayList<>(currentSequence));
+                    copyModel.candyBoard.copyTo(this.candyBoard);
+                    score = copyModel.score;
+                    // Undo the horizontal swap
+                    swapCandies(row, col, row, col + 1);
+                    currentSequence.removeLast();
+                    //currentSequence.removeLast();
+                }
+            }
+        }
+        // For vertical swaps
+        for (int row = 0; row < boardSize.rows() - 1; row++) {
+            for (int col = 0; col < boardSize.columns(); col++) {
+                if(matchAfterSwitch(row, col, row + 1, col)) {
+                    // Perform the vertical swap
+                    swapCandies(row, col, row + 1, col);
+                    currentSequence.add(List.of(new Position(row, col, boardSize), new Position(row + 1, col, boardSize)));
+
+                    // Recursively call backtrack
+                    // Create a copy of the model
+                    CandyCrushModel copyModel = new CandyCrushModel(boardSize);
+                    candyBoard.copyTo(copyModel.candyBoard);
+                    copyModel.score = score;
+
+                    updateBoard(); // Update the board after the swap
+                    backtrack(new ArrayList<>(currentSequence));
+
+                    copyModel.candyBoard.copyTo(this.candyBoard);
+                    score = copyModel.score;
+
+                    // Undo the vertical swap
+                    swapCandies(row, col, row + 1, col);
+                    currentSequence.removeLast();
+                    //currentSequence.removeLast();
+                }
+            }
+        }
+    }
+
+    private boolean boardIsEmpty() {
+        for (int row = 0; row < boardSize.rows(); row++) {
+            for (int col = 0; col < boardSize.columns(); col++) {
+                if (getCandyAt(new Position(row, col, boardSize)) != null) {
+                    return false; // Found a candy, board is not empty
+                }
+            }
+        }
+        return true; // No candies found, board is empty
+    }
+    boolean noValidSwitches() {
+        for (int row = 0; row < boardSize.rows(); row++) {
+            for (int col = 0; col < boardSize.columns()-1; col++){
+                if (matchAfterSwitch(row,col,row,col+1))
+                {
+                    return false;
+                }
+            }
+        }
+        for (int row = 0; row < boardSize.rows()-1; row++) {
+            for (int col = 0; col < boardSize.columns(); col++){
+                if (matchAfterSwitch(row,col,row+1,col))
+                {
+                    return false;
+                }
+            }
+        }
+        // If no match is found after all possible swaps, return true indicating no valid switches
+        return true;
+    }
+
+    private boolean matchAfterSwitch(int row1, int col1, int row2, int col2) {
+        // Create a copy of the model
+        CandyCrushModel copyModel = new CandyCrushModel(boardSize);
+        candyBoard.copyTo(copyModel.candyBoard);
+        copyModel.score = score;
+        // Perform the swap in the copied model
+        copyModel.swapCandies(row1, col1, row2, col2);
+        // Find matches on the current board state
+        Set<List<Position>> matches = copyModel.findAllMatches();
+        // Return true if matches are found after the swap, false otherwise
+        return !matches.isEmpty();
+    }
+
+    public void swapCandies(int row1, int col1, int row2, int col2) {
+        // Check if the positions are valid
+        if (!isValidPosition(row1, col1) || !isValidPosition(row2, col2)) {
+            return;
+        }
+
+        // Get the candies from the specified positions
+        Candy candy1 = getCandyAt(new Position(row1, col1, boardSize));
+        Candy candy2 = getCandyAt(new Position(row2, col2, boardSize));
+
+        // Swap the candies by replacing them at their positions
+        updateCandyAt(new Position(row1, col1, boardSize), candy2);
+        updateCandyAt(new Position(row2, col2, boardSize), candy1);
     }
 }
