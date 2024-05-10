@@ -190,7 +190,15 @@ public class CandyCrushModel {
         // Recursively call fallDownTo for the cell above
         fallDownTo(new Position(row - 1, col, boardSize));
     }
+    private Position selectedPosition; // New member to store the selected position
 
+    public Position getSelectedPosition() {
+        return selectedPosition;
+    }
+
+    public void setSelectedPosition(Position selectedPosition) {
+        this.selectedPosition = selectedPosition;
+    }
     public boolean updateBoard() {
         boolean matchRemoved = false;
 

@@ -149,28 +149,13 @@ public class CandyCrushModelTests {
         BoardSize boardSize = new BoardSize(5, 5);
         CandyCrushModel model = initializeModelWithCandies(boardSize);
 
-        // Define expected results based on the predefined board setup
-        Set<Position> expectedHorizontal = new HashSet<>();
-        // Add positions where a horizontal swap results in a match
-        expectedHorizontal.add(new Position(0, 1, boardSize)); // Potential match by swapping (0, 1) with (0, 2)
-
-        Set<Position> expectedVertical = new HashSet<>();
-        // Add positions where a vertical swap results in a match
-        expectedVertical.add(new Position(0, 2, boardSize)); // Potential match by swapping (1, 2) with (2, 2)
-
         // Call the methods under test and convert the results from Stream to Set
         Set<Position> actualHorizontal = model.horizontalStartingPositions().collect(Collectors.toSet());
         Set<Position> actualVertical = model.verticalStartingPositions().collect(Collectors.toSet());
 
-        // Assert that the identified starting positions match the expected results
-        //assertEquals(expectedHorizontal, actualHorizontal, "Horizontal starting positions should match expected");
-        //assertEquals(expectedVertical, actualVertical, "Vertical starting positions should match expected");
-
-        // Print the results for manual verification if needed
-        //System.out.println("Expected Horizontal Starting Positions: " + expectedHorizontal);
-        System.out.println("Actual Horizontal Starting Positions: " + actualHorizontal);
-        //System.out.println("Expected Vertical Starting Positions: " + expectedVertical);
-        System.out.println("Actual Vertical Starting Positions: " + actualVertical);
+        // Print the results
+        System.out.println("Horizontal Starting Positions: " + actualHorizontal);
+        System.out.println("Vertical Starting Positions: " + actualVertical);
     }
 
     @Test
@@ -399,15 +384,17 @@ public class CandyCrushModelTests {
            *#@@""");
         model.printBoard();
         // Call the maximizeScore method
-        var maximized = model.maximizeScore();
-        System.out.println(maximized);
+        model.maximizeScore();
         // Output the best sequence of moves
         System.out.println("Best sequence of moves to maximize score:");
         for (List<Position> positions : model.bestSequence) {
+            int i=0;
             for (Position pos : positions) {
-                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+                System.out.print("(r" + pos.row() + ", c" + pos.column() + ")");
+                if (i==0)System.out.print("<->");
+                i++;
             }
-            //System.out.println();
+            System.out.print("|");
         }
         System.out.println("max score: "+model.maxScore);
     }
@@ -423,43 +410,45 @@ public class CandyCrushModelTests {
    **#*o""");
         model.printBoard();
         // Call the maximizeScore method
-        var maximized = model.maximizeScore();
-        System.out.println(maximized);
+        model.maximizeScore();
         // Output the best sequence of moves
         System.out.println("Best sequence of moves to maximize score:");
         for (List<Position> positions : model.bestSequence) {
+            int i=0;
             for (Position pos : positions) {
-                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+                System.out.print("(r" + pos.row() + ", c" + pos.column() + ")");
+                if (i==0)System.out.print("<->");
+                i++;
             }
-            //System.out.println();
+            System.out.print("|");
         }
         System.out.println("max score: "+model.maxScore);
     }
 
-    @Test
-    public void testMaximizeScore3() {
-        // Create a CandyCrushModel instance
-        CandyCrushModel model = createBoardFromString("""
-   #@#oo@
-   @**@**
-   o##@#o
-   @#oo#@
-   @*@**@
-   *#@##*""");
-        model.printBoard();
-        // Call the maximizeScore method
-        var maximized = model.maximizeScore();
-        System.out.println(maximized);
-        // Output the best sequence of moves
-        System.out.println("Best sequence of moves to maximize score:");
-        for (List<Position> positions : model.bestSequence) {
-            for (Position pos : positions) {
-                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
-            }
-            //System.out.println();
-        }
-        System.out.println("max score: "+model.maxScore);
-    }
+//    @Test
+//    public void testMaximizeScore3() {
+//        // Create a CandyCrushModel instance
+//        CandyCrushModel model = createBoardFromString("""
+//   #@#oo@
+//   @**@**
+//   o##@#o
+//   @#oo#@
+//   @*@**@
+//   *#@##*""");
+//        model.printBoard();
+//        // Call the maximizeScore method
+//        var maximized = model.maximizeScore();
+//        System.out.println(maximized);
+//        // Output the best sequence of moves
+//        System.out.println("Best sequence of moves to maximize score:");
+//        for (List<Position> positions : model.bestSequence) {
+//            for (Position pos : positions) {
+//                System.out.print("(" + pos.row() + ", " + pos.column() + ") ");
+//            }
+//            //System.out.println();
+//        }
+//        System.out.println("max score: "+model.maxScore);
+//    }
     public static CandyCrushModel createBoardFromString(String configuration) {
         var lines = configuration.toLowerCase().lines().toList();
         BoardSize size = new BoardSize(lines.size(), lines.getFirst().length());

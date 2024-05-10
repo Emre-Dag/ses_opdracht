@@ -16,9 +16,11 @@ import javafx.scene.shape.Rectangle;
 
 import javafx.scene.effect.DropShadow;
 
+import java.util.List;
+
 public class CandyCrushController {
     public final Stage primaryStage;
-    public final CandyCrushModel model;
+    public CandyCrushModel model;
     public GridPane candyGridPane;
     public Label scoreLabel;
 
@@ -35,7 +37,7 @@ public class CandyCrushController {
     // Method to update the score
     public void updateScore(int value) {
         // Update the score in the model
-        model.updateScore(value);
+        //model.updateScore(value);
 
         // Update the score label
         updateScoreLabel();
@@ -48,7 +50,8 @@ public class CandyCrushController {
 
     public void showLoginScene() {
         GridPane loginPane = new GridPane();
-        model.score = 0;
+        this.model = new CandyCrushModel(model.boardSize);
+        this.model.updateBoard();
         TextField nameField = new TextField();
         Button loginButton = new Button("Login");
         model.setPlayerName(""); // Reset player name
@@ -99,41 +102,78 @@ public class CandyCrushController {
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
         candyGridPane.add(backButton, model.candyBoard.boardSize.columns()+1, 1); // Adjust position as needed
+        // Adding a button to maximize the score
+        Button maximizeScoreButton = new Button("Maximize Score");
+        maximizeScoreButton.setOnAction(event -> maximizeScore());
+        candyGridPane.add(maximizeScoreButton, model.candyBoard.boardSize.columns()+1, 2); // Adjust position as needed
 
         primaryStage.setScene(new Scene(candyGridPane, 400, 400));
         primaryStage.setTitle("Candy Crush - " + model.getPlayerName());
     }
-
+    public void maximizeScore(){
+        // Call the maximizeScore method
+        model.maximizeScore();
+        // Output the best sequence of moves
+        System.out.println("Best sequence of moves to maximize score:");
+        for (List<Position> positions : model.bestSequence) {
+            int i=0;
+            for (Position pos : positions) {
+                System.out.print("(r" + pos.row() + ", c" + pos.column() + ")");
+                if (i==0)System.out.print("<->");
+                i++;
+            }
+            System.out.print("|");
+        }
+        System.out.println("max score: "+model.maxScore);
+        updateCandyGridUI();
+        updateScore(model.maxScore);
+        updateScoreLabel();
+        Label instructionlabel = new Label("Volg de instructies in de terminal voor een maximale score");
+        candyGridPane.add(instructionlabel, model.candyBoard.boardSize.columns()+1, 2);
+    }
 
     public void handleCandyClick(Position position, Candy clickedCandy) {
-        // Get same neighbor positions
-        Iterable<Position> neighborPositions = model.getSameNeighbourPositions(position);
+        // Check if there's already a selected position
+        if (model.getSelectedPosition() == null) {
+            // If no candy is selected yet, set the current position as selected
+            model.setSelectedPosition(position);
+        } else {
+            // Candy already selected, so swap candies and check for a match
+            Position selectedPosition = model.getSelectedPosition();
 
-        for (Position neighborPosition : neighborPositions) {
-            Candy randomCandy = model.createRandomCandy(neighborPosition); // Generate a random candy for each neighbor position
-            model.candyBoard.replaceCellAt(neighborPosition, randomCandy); // Update the grid value with the random candy
+            // Check if the selected position is adjacent to the clicked position
+            if (isAdjacent(selectedPosition, position)) {
+                // Perform the swap
+                model.swapCandies(selectedPosition.row(),selectedPosition.column(),position.row(), position.column());
+
+                // Check if the swap results in any matches
+                if (model.updateBoard()) {
+                    // If matches found, update the score and UI
+                    updateScore(model.getScore());
+                    updateCandyGridUI();
+                } else {
+                    // If no matches found, swap back the candies to their original positions
+                    model.swapCandies(selectedPosition.row(),selectedPosition.column(),position.row(), position.column());
+                    // Optionally, show a message indicating that the swap is not resulting in a match
+                    // For example:
+                    // showAlert("Invalid Move", "Swapping these candies does not result in a match.");
+                }
+            } else {
+                // The selected candy is not adjacent to the clicked candy
+                // Optionally, show a message indicating that the selected candy must be adjacent to the clicked candy
+                // For example:
+                // showAlert("Invalid Move", "You can only swap candies that are adjacent to each other.");
+            }
+
+            // Reset selected position after handling the click
+            model.setSelectedPosition(null);
         }
-
-        // Change the value of the clicked cell itself to a random value
-        Candy randomCandy = model.createRandomCandy(position);
-        model.candyBoard.replaceCellAt(position, randomCandy);
-
-        // Update the score based on the value of the clicked candy
-        int value = getValueFromCandy(clickedCandy);
-        int count = 0;
-        for (Position ignored : neighborPositions) {
-            count++;
-        }
-        if (count == 2) {
-            updateScore(value);
-        } else if (count == 3) {
-            updateScore(value + 1);
-        } else if (count > 3) {
-            updateScore(value * 2);
-        }
-
-        // Update the UI to reflect the changes
-        updateCandyGridUI(); // Update the UI with the candyBoard
+    }
+    public boolean isAdjacent(Position position1, Position position2) {
+        int rowDiff = Math.abs(position1.row() - position2.row());
+        int colDiff = Math.abs(position1.column() - position2.column());
+        // Two positions are adjacent if their row or column difference is 1 and the other difference is 0
+        return (rowDiff == 1 && colDiff == 0) || (rowDiff == 0 && colDiff == 1);
     }
 
 
@@ -194,6 +234,13 @@ public class CandyCrushController {
 
     public Node makeCandyShape(Position position, Candy candy) {
         switch (candy) {
+            case null-> {
+                Rectangle rectangle = new Rectangle(50, 50); // Width and height 50
+                rectangle.setFill(Color.WHITE);
+                rectangle.setX(position.row() - 25); // Adjusting position for centering
+                rectangle.setY(position.column() - 25);
+                return rectangle;
+            }
             case NormalCandy normalCandy -> {
                 return getCircle(position, normalCandy);
             }
