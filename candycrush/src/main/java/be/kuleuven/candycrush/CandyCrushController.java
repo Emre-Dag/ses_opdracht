@@ -96,19 +96,35 @@ public class CandyCrushController {
         // Setting up the score label and adding it to the grid pane
         scoreLabel = new Label();
         updateScoreLabel();
-        candyGridPane.add(scoreLabel, model.candyBoard.boardSize.columns()+1, 0); // Adjust position as needed
+        candyGridPane.add(scoreLabel, model.candyBoard.boardSize.columns()+1, 0);
 
         // Adding a back button to return to the login scene
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
-        candyGridPane.add(backButton, model.candyBoard.boardSize.columns()+1, 1); // Adjust position as needed
+        candyGridPane.add(backButton, model.candyBoard.boardSize.columns()+1, 1);
+
         // Adding a button to maximize the score
         Button maximizeScoreButton = new Button("Maximize Score");
         maximizeScoreButton.setOnAction(event -> maximizeScore());
-        candyGridPane.add(maximizeScoreButton, model.candyBoard.boardSize.columns()+1, 2); // Adjust position as needed
+        candyGridPane.add(maximizeScoreButton, model.candyBoard.boardSize.columns()+1, 2);
+
+        // Adding a button to reset the game with a new model
+        Button resetButton = new Button("Reset Game");
+        resetButton.setOnAction(event -> resetGame());
+        candyGridPane.add(resetButton, model.candyBoard.boardSize.columns()+1, 4);
 
         primaryStage.setScene(new Scene(candyGridPane, 400, 400));
         primaryStage.setTitle("Candy Crush - " + model.getPlayerName());
+    }
+    public void resetGame() {
+        // Create a new CandyCrushModel instance
+        model = new CandyCrushModel(model.boardSize);
+        // Update the UI to reflect the new model
+        updateCandyGridUI();
+        // Update the score label
+        updateScoreLabel();
+        model.updateBoard();
+        showCandyCrushScene();
     }
     public void maximizeScore(){
         // Call the maximizeScore method
@@ -129,7 +145,7 @@ public class CandyCrushController {
         updateScore(model.maxScore);
         updateScoreLabel();
         Label instructionlabel = new Label("Volg de instructies in de terminal voor een maximale score");
-        candyGridPane.add(instructionlabel, model.candyBoard.boardSize.columns()+1, 2);
+        candyGridPane.add(instructionlabel, model.candyBoard.boardSize.columns()+1, 3);
     }
 
     public void handleCandyClick(Position position, Candy clickedCandy) {
@@ -154,15 +170,7 @@ public class CandyCrushController {
                 } else {
                     // If no matches found, swap back the candies to their original positions
                     model.swapCandies(selectedPosition.row(),selectedPosition.column(),position.row(), position.column());
-                    // Optionally, show a message indicating that the swap is not resulting in a match
-                    // For example:
-                    // showAlert("Invalid Move", "Swapping these candies does not result in a match.");
                 }
-            } else {
-                // The selected candy is not adjacent to the clicked candy
-                // Optionally, show a message indicating that the selected candy must be adjacent to the clicked candy
-                // For example:
-                // showAlert("Invalid Move", "You can only swap candies that are adjacent to each other.");
             }
 
             // Reset selected position after handling the click
@@ -225,11 +233,21 @@ public class CandyCrushController {
     }
     private void addUIComponentsBack() {
         // Assuming scoreLabel is already initialized and updated
-        candyGridPane.add(scoreLabel, model.boardSize.rows()+1, 0); // Adjust position as needed
+        candyGridPane.add(scoreLabel, model.boardSize.rows()+1, 0);
 
         Button backButton = new Button("Back to Login");
         backButton.setOnAction(event -> showLoginScene());
-        candyGridPane.add(backButton, model.boardSize.rows() + 1, 1); // Adjust position as needed
+        candyGridPane.add(backButton, model.boardSize.rows() + 1, 1);
+
+        // Adding a button to maximize the score
+        Button maximizeScoreButton = new Button("Maximize Score");
+        maximizeScoreButton.setOnAction(event -> maximizeScore());
+        candyGridPane.add(maximizeScoreButton, model.candyBoard.boardSize.columns()+1, 2);
+
+        // Adding a button to reset the game with a new model
+        Button resetButton = new Button("Reset Game");
+        resetButton.setOnAction(event -> resetGame());
+        candyGridPane.add(resetButton, model.candyBoard.boardSize.columns()+1, 4);
     }
 
     public Node makeCandyShape(Position position, Candy candy) {
